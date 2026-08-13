@@ -1,0 +1,156 @@
+apontamento tipo A para o IP 177.153.66.213
+ssh root@drake.planincheck.com.br
+ufw allow 22/tcp
+ufw allow 21115:21119/tcp
+ufw allow 21116/udp
+ufw allow 22/tcp
+ufw allow 4444/tcp
+nano /etc/ssh/sshd_config
+	(alterar porta 22 para 4444)
+systemctl disable --now ssh.socket
+systemctl enable --now ssh.service
+systemctl restart ssh
+apt update && apt upgrade -y
+
+
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+mkdir -p /opt/drake && cd /opt/Drake
+nano docker-compose.yml
+
+	Colar texto abaixo e salvar
+--------------------------------------------
+version: '3'
+
+networks:
+  rustdesk-net:
+    external: false
+
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs -r drake.planincheck.com.br:21117 
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    restart: unless-stopped
+--------------------------------------------
+
+docker compose up -d
+cat ./data/id_ed25519.pub
+
+XGNzMP6jul7+fVuE8W4Qjeaef0T8VBwyoofgBnz9yKc=
+A chave acima será usada na configuração do rustdesk
+
+Instalar o controle
+
+ufw allow 21114/tcp
+
+nano docker-compose.yml
+
+Substitua pelo código abaixo:
+
+---------------------------------------------
+version: '3'
+
+networks:
+  rustdesk-net:
+    external: false
+
+services:
+  hbbs:
+    container_name: hbbs
+    image: rustdesk/rustdesk-server:latest
+    command: hbbs -r drake.planincheck.com.br:21117 
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+
+  hbbr:
+    container_name: hbbr
+    image: rustdesk/rustdesk-server:latest
+    command: hbbr
+    volumes:
+      - ./data:/root
+    network_mode: "host"
+    restart: unless-stopped
+
+  api:
+    container_name: rustdesk-api
+    image: lejianwen/rustdesk-api:latest
+    ports:
+      - "21114:21114"
+    environment:
+      - CSRF_TRUSTED_ORIGINS=http://drake.planincheck.com.br:21114
+    volumes:
+      - ./data/api:/app/data
+    restart: unless-stopped
+---------------------------------------------
+
+docker compose up -d
+
+Ver a senha do painel de controle:
+docker logs rustdesk-api | grep -i -E "password|admin"
+
+Alterar de http para https:
+
+ufw allow 80/tcp
+ufw allow 443/tcp
+
+apt install nginx certbot python3-certbot-nginx -y
+
+nano /etc/nginx/sites-available/Drake
+
+incluir o texto abaixo:
+
+---------------------------------------------
+server {
+    listen 80;
+    server_name drake.planincheck.com.br;
+
+    location / {
+        proxy_pass http://127.0.0.1:21114;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+---------------------------------------------
+
+ln -s /etc/nginx/sites-available/drake /etc/nginx/sites-enabled/
+
+systemctl reload nginx
+
+certbot --nginx -d drake.planincheck.com.br
+
+cd /opt/drake
+nano docker-compose.yml
+
+Localize e altere a linha:
+
+------------------------------------------------
+environment:
+      - CSRF_TRUSTED_ORIGINS=https://drake.planincheck.com.br
+
+------------------------------------------------
+
+docker compose up -d
+
+ufw delete allow 21114/tcp

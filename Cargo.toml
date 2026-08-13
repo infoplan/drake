@@ -1,15 +1,15 @@
 [package]
-name = "rustdesk"
+name = "drake"
 version = "1.4.9"
-authors = ["rustdesk <info@rustdesk.com>"]
+authors = ["Planincheck Informática <suporte@planincheck.com.br>"]
 edition = "2021"
 build= "build.rs"
-description = "RustDesk Remote Desktop"
-default-run = "rustdesk"
+description = "Drake Remote Desktop"
+default-run = "drake"
 rust-version = "1.75"
 
 [lib]
-name = "librustdesk"
+name = "libdrake"
 crate-type = ["cdylib", "staticlib", "rlib"]
 
 [[bin]]

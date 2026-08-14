@@ -36,7 +36,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho (Drake Suporte)"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "target\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "target\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "res\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]

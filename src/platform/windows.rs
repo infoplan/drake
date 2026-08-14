@@ -940,10 +940,6 @@ async fn send_close_async(postfix: &str) -> ResultType<()> {
 // https://docs.microsoft.com/en-us/windows/win32/api/sas/nf-sas-sendsas
 // https://www.cnblogs.com/doutu/p/4892726.html
 pub fn send_sas() {
-    #[link(name = "sas")]
-    extern "system" {
-        pub fn SendSAS(AsUser: BOOL);
-    }
     unsafe {
         log::info!("SAS received");
 
@@ -989,8 +985,17 @@ pub fn send_sas() {
             log::error!("Failed to open registry key for SoftwareSASGeneration");
         }
 
-        // Send SAS
-        SendSAS(FALSE);
+        // Send SAS dynamically
+        type FnSendSAS = unsafe extern "system" fn(BOOL);
+        let h_sas = winapi::um::libloaderapi::LoadLibraryA(b"sas.dll\0".as_ptr() as _);
+        if !h_sas.is_null() {
+            let proc = winapi::um::libloaderapi::GetProcAddress(h_sas, b"SendSAS\0".as_ptr() as _);
+            if !proc.is_null() {
+                let send_sas_fn: FnSendSAS = std::mem::transmute(proc);
+                send_sas_fn(FALSE);
+            }
+            winapi::um::libloaderapi::FreeLibrary(h_sas);
+        }
 
         // Restore original value if we changed it
         if let Some(original) = original_value {

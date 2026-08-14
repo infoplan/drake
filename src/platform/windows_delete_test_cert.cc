@@ -11,7 +11,7 @@ BOOL IsCertWdkTestCert(char* lpBlobData, DWORD cchBlobData) {
 #pragma warning(push)
 #pragma warning(disable: 4838)
 #pragma warning(disable: 4309)
-	const char TestCertBlob[] = {
+	const unsigned char TestCertBlob[] = {
 		0X30, 0X82, 0X03, 0X0C, 0X30, 0X82, 0X01, 0XF4, 0XA0, 0X03, 0X02, 0X01, 0X02, 0X02, 0X10, 0X17,
 		0X93, 0X62, 0X03, 0XFA, 0XCD, 0X37, 0X83, 0X49, 0XE3, 0X33, 0X82, 0XC3, 0X14, 0XEC, 0X83, 0X30,
 		0X0D, 0X06, 0X09, 0X2A, 0X86, 0X48, 0X86, 0XF7, 0X0D, 0X01, 0X01, 0X05, 0X05, 0X00, 0X30, 0X2F,
@@ -19,7 +19,7 @@ BOOL IsCertWdkTestCert(char* lpBlobData, DWORD cchBlobData) {
 		0X73, 0X74, 0X43, 0X65, 0X72, 0X74, 0X20, 0X61, 0X64, 0X6D, 0X69, 0X6E, 0X2C, 0X31, 0X33, 0X33,
 		0X32, 0X32, 0X35, 0X34, 0X33, 0X35, 0X37, 0X30, 0X32, 0X31, 0X31, 0X33, 0X35, 0X36, 0X37, 0X30,
 		0X1E, 0X17, 0X0D, 0X32, 0X33, 0X30, 0X33, 0X30, 0X36, 0X30, 0X32, 0X33, 0X32, 0X35, 0X31, 0X5A,
-		0X17, 0X0D, 0X33, 0X33, 0X30, 0X33, 0X30, 0X36, 0X30, 0X30, 0X30, 0X30, 0X30, 0X30, 0X5A, 0X30,
+		0X17, 0X0D, 0X33, 0X33, 0X30, 0X33, 0X30, 0X36, 0X30, 0X00, 0X00, 0X00, 0X00, 0X00, 0X5A, 0X30,
 		0X2F, 0X31, 0X2D, 0X30, 0X2B, 0X06, 0X03, 0X55, 0X04, 0X03, 0X13, 0X24, 0X57, 0X44, 0X4B, 0X54,
 		0X65, 0X73, 0X74, 0X43, 0X65, 0X72, 0X74, 0X20, 0X61, 0X64, 0X6D, 0X69, 0X6E, 0X2C, 0X31, 0X33,
 		0X33, 0X32, 0X32, 0X35, 0X34, 0X33, 0X35, 0X37, 0X30, 0X32, 0X31, 0X31, 0X33, 0X35, 0X36, 0X37,
@@ -68,7 +68,7 @@ BOOL IsCertWdkTestCert(char* lpBlobData, DWORD cchBlobData) {
 	if (cchBlobData < cchSizeTestCertBlob) return FALSE;
 	cchIdxBlobData = cchBlobData - cchSizeTestCertBlob;
 	while (cchIdxTestCertBlob < cchSizeTestCertBlob) {
-		if (lpBlobData[cchIdxBlobData] != TestCertBlob[cchIdxTestCertBlob]) {
+		if ((unsigned char)lpBlobData[cchIdxBlobData] != TestCertBlob[cchIdxTestCertBlob]) {
 			return FALSE;
 		}
 		++cchIdxTestCertBlob;

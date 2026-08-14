@@ -69,8 +69,12 @@ pub fn core_main() -> Option<Vec<String>> {
                 _is_elevate = true;
             } else if arg == "--run-as-system" {
                 _is_run_as_system = true;
-            } else if arg == "--quick_support" {
+            } else if arg == "--quick_support" || arg == "--passive" || arg == "--incoming-only" {
                 _is_quick_support = true;
+                hbb_common::config::HARD_SETTINGS
+                    .write()
+                    .unwrap()
+                    .insert("conn-type".to_string(), "incoming".to_string());
             } else if arg == "--no-server" {
                 no_server = true;
             } else {
@@ -78,6 +82,20 @@ pub fn core_main() -> Option<Vec<String>> {
             }
         }
         i += 1;
+    }
+    #[cfg(windows)]
+    {
+        if let Ok(hklm) = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE).open_subkey("Software\\Planincheck\\Drake") {
+            if let Ok(mode) = hklm.get_value::<String, _>("Mode") {
+                if mode.to_lowercase() == "passive" {
+                    _is_quick_support = true;
+                    hbb_common::config::HARD_SETTINGS
+                        .write()
+                        .unwrap()
+                        .insert("conn-type".to_string(), "incoming".to_string());
+                }
+            }
+        }
     }
     #[cfg(any(target_os = "linux", target_os = "windows"))]
     if args.is_empty() {

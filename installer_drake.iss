@@ -38,6 +38,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "target\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "res\sciter.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "res\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "src\ui\*"; DestDir: "{app}\src\ui"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\icon.ico"

@@ -39,6 +39,7 @@ Name: "desktopicon"; Description: "Criar atalho na Área de Trabalho (Drake Supo
 Source: "target\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "res\sciter.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "res\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "src\ui\*"; DestDir: "{app}\src\ui"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Registry]
 ; Configurações no Registro para forçar Modo Passivo / Apenas Receber Conexões

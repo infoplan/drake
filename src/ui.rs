@@ -60,15 +60,32 @@ pub fn start(args: &mut [String]) {
         sciter::set_library(&so_path).ok();
     }
     #[cfg(windows)]
-    // Check if there is a sciter.dll nearby.
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(parent) = exe.parent() {
-            let sciter_dll_path = parent.join("sciter.dll");
-            if sciter_dll_path.exists() {
-                // Try to set the sciter dll.
-                let p = sciter_dll_path.to_string_lossy().to_string();
-                log::debug!("Found dll:{}, \n {:?}", p, sciter::set_library(&p));
+    {
+        let mut loaded = false;
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(parent) = exe.parent() {
+                let sciter_dll_path = parent.join("sciter.dll");
+                if sciter_dll_path.exists() {
+                    let p = sciter_dll_path.to_string_lossy().to_string();
+                    if sciter::set_library(&p).is_ok() {
+                        loaded = true;
+                    }
+                }
             }
+        }
+        if !loaded {
+            const SCITER_DLL_BYTES: &[u8] = include_bytes!("../res/sciter.dll");
+            let temp_dir = std::env::temp_dir().join("Drake");
+            let _ = std::fs::create_dir_all(&temp_dir);
+            let temp_dll = temp_dir.join("sciter.dll");
+            if !temp_dll.exists()
+                || temp_dll.metadata().map(|m| m.len()).unwrap_or(0)
+                    != SCITER_DLL_BYTES.len() as u64
+            {
+                let _ = std::fs::write(&temp_dll, SCITER_DLL_BYTES);
+            }
+            let p = temp_dll.to_string_lossy().to_string();
+            let _ = sciter::set_library(&p);
         }
     }
     // https://github.com/c-smile/sciter-sdk/blob/master/include/sciter-x-types.h
